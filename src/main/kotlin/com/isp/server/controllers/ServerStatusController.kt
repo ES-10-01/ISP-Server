@@ -1,13 +1,15 @@
 package com.isp.server.controllers
 
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class TestController {
+@RequestMapping("api/ping")
+class ServerStatusController {
 
-    @GetMapping("")
+    @GetMapping
     fun test(): String {
-        return "test"
+        return "Server is up!"
     }
 }
