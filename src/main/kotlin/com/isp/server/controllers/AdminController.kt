@@ -15,8 +15,11 @@ class AdminController (private val userService: UserService) {
     fun getAll(pageable: Pageable):
         Page<UserEntity> = userService.getAll(pageable)
 
-    @PostMapping("user/add")
-    fun create(@RequestBody user: UserEntity): UserEntity = userService.insert(user)
+//    @PostMapping("user/add")
+//    fun create(@RequestBody credentials: UserEntity): UserEntity {
+//        val newUser : UserEntity = UserEntity()
+//        return userService.insert(newUser)
+//    }
 
     @DeleteMapping("{id}")
     fun deleteByIsbn(@PathVariable id: String): Optional<UserEntity> = userService.deleteById(id)
