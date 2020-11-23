@@ -9,18 +9,19 @@ import java.util.*
 
 @RestController
 @RequestMapping("api/admin")
-class AdminController (private val userService: UserService) {
+class AdminController(private val userService: UserService) {
 
-    @GetMapping("user/all")
-    fun getAll(pageable: Pageable):
-        Page<UserEntity> = userService.getAll(pageable)
+        @GetMapping("user/all")
+        fun getAll(pageable: Pageable):
+                Page<UserEntity> = userService.getAll(pageable)
 
-    @PostMapping("user/add")
-    fun create(@RequestBody user: UserEntity): UserEntity = userService.insert(user)
+        @PostMapping("user/add")
+        fun create(@RequestBody user: UserEntity):
+                UserEntity = userService.insert(user)
 
-    @DeleteMapping("{id}")
-    fun deleteByIsbn(@PathVariable id: String): Optional<UserEntity> = userService.deleteById(id)
+        @DeleteMapping("{id}")
+        fun deleteByIs(@PathVariable id: Int): Optional<UserEntity> = userService.deleteById(id)
 
-    @GetMapping("{id}")
-    fun getById(@PathVariable id:String): Optional<UserEntity> = userService.getById(id)
+        @GetMapping("{id}")
+        fun getById(@PathVariable id: Int): Optional<UserEntity> = userService.getById(id)
 }

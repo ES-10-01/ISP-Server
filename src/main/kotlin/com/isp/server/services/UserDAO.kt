@@ -3,4 +3,4 @@ package com.isp.server.services
 import org.springframework.data.mongodb.repository.MongoRepository
 import com.isp.server.entites.UserEntity
 
-interface UserDAO: MongoRepository<UserEntity, String>
+interface UserDAO: MongoRepository<UserEntity, Int>
