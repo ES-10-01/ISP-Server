@@ -1,13 +1,10 @@
 package com.isp.server
 
-import com.isp.server.entites.UserEntity
+import com.isp.server.models.UserModel
 import com.isp.server.util.hash
 import com.isp.server.util.hashUserPassword
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
-import org.springframework.boot.test.context.SpringBootTest
 
 
 class HashTest {
@@ -27,9 +24,9 @@ class HashTest {
 
         @Test
         fun hashUserPasswordTest() {
-                val firstEntity: UserEntity = UserEntity(1, "asd", "asd", "asd", "admin")
-                val secondEntity: UserEntity = hashUserPassword(firstEntity)
-                Assertions.assertEquals(hash(firstEntity.password), secondEntity.password)
+                val firstModel: UserModel = UserModel(1, "asd", "asd", "asd", "admin")
+                val secondModel: UserModel = hashUserPassword(firstModel)
+                Assertions.assertEquals(hash(firstModel.password), secondModel.password)
         }
 
 }

@@ -1,13 +1,12 @@
 package com.isp.server.util
 
-import java.security.MessageDigest
-import com.isp.server.entites.UserEntity
+import com.isp.server.models.UserModel
 import com.isp.server.services.UserService
 import java.util.*
 
-fun validateCredentials(userEntity: UserEntity, userService: UserService): Boolean {
-        val storedUserEntity: Optional<UserEntity> = userService.getById(userEntity.uid)
-        if (storedUserEntity.isEmpty)
+fun validateCredentials(userModel: UserModel, userService: UserService): Boolean {
+        val storedUserModel: Optional<UserModel> = userService.getById(userModel.uid)
+        if (storedUserModel.isEmpty)
                 return false
-        return hashUserPassword(userEntity) == storedUserEntity.get()
+        return hashUserPassword(userModel) == storedUserModel.get()
 }

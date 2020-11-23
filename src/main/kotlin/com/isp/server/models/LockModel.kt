@@ -1,10 +1,10 @@
-package com.isp.server.entites
+package com.isp.server.models
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document
-data class LockEntity(
+@Document(collection = "lock")
+data class LockModel (
         @Id
         val uid: Int,
         val name: String,

@@ -1,5 +1,6 @@
 package com.isp.server.util
 
+import com.isp.server.models.UserModel
 import java.security.MessageDigest
 
 fun hash(strToBeHashed : String): String {
@@ -20,4 +21,14 @@ fun newPass() : String {
 
 
     return randomString
+}
+
+fun hashUserPassword(userModel: UserModel): UserModel {
+    return UserModel(
+        userModel.uid,
+        hash(userModel.password),
+        userModel.name,
+        userModel.surname,
+        userModel.privileges
+    )
 }
