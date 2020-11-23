@@ -8,23 +8,23 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class UserService(val userDAO: UserDAO): BasicCrud<String, UserEntity> {
+class UserService(val userDAO: UserDAO) : BasicCrud<Int, UserEntity> {
 
-    override fun getAll(pageable: Pageable): Page<UserEntity> = userDAO.findAll(pageable)
+        override fun getAll(pageable: Pageable): Page<UserEntity> = userDAO.findAll(pageable)
 
-    override fun getById(id: String): Optional<UserEntity> = userDAO.findById(id)
+        override fun getById(id: Int): Optional<UserEntity> = userDAO.findById(id)
 
-    override fun insert(obj: UserEntity): UserEntity = userDAO.insert(obj)
+        override fun insert(obj: UserEntity): UserEntity = userDAO.insert(obj)
 
-    override fun deleteById(id: String): Optional<UserEntity> {
-        return userDAO.findById(id).apply {
-            this.ifPresent {
-                userDAO.delete(it)
-            }
+        override fun deleteById(id: Int): Optional<UserEntity> {
+                return userDAO.findById(id).apply {
+                        this.ifPresent {
+                                userDAO.delete(it)
+                        }
+                }
         }
-    }
 
-    override fun update(obj: UserEntity): UserEntity {
-        TODO("Not yet implemented")
-    }
+        override fun update(obj: UserEntity): UserEntity {
+                TODO("Not yet implemented")
+        }
 }

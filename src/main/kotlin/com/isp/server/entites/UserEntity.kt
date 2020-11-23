@@ -12,4 +12,4 @@ data class UserEntity (
     val surname: String,
     val privileges: String
     //val availableLocks: Array<Lock>
-)
+}
