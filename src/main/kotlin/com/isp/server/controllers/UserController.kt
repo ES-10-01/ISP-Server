@@ -1,6 +1,6 @@
 package com.isp.server.controllers
 
-import com.isp.server.models.User
+import com.isp.server.entites.User
 import com.isp.server.services.UserService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
