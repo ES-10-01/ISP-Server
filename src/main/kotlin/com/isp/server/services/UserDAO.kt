@@ -1,6 +1,6 @@
 package com.isp.server.services
 
 import org.springframework.data.mongodb.repository.MongoRepository
-import com.isp.server.models.User
+import com.isp.server.entites.UserEntity
 
-interface UserDAO: MongoRepository<User, String>
+interface UserDAO: MongoRepository<UserEntity, String>

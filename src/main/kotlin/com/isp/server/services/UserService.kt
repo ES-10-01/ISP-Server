@@ -1,6 +1,6 @@
 package com.isp.server.services
 
-import com.isp.server.models.User
+import com.isp.server.entites.UserEntity
 import com.isp.server.util.BasicCrud
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class UserService(val userDAO: UserDAO): BasicCrud<String, User> {
+class UserService(val userDAO: UserDAO): BasicCrud<String, UserEntity> {
 
-    override fun getAll(pageable: Pageable): Page<User> = userDAO.findAll(pageable)
+    override fun getAll(pageable: Pageable): Page<UserEntity> = userDAO.findAll(pageable)
 
-    override fun getById(id: String): Optional<User> = userDAO.findById(id)
+    override fun getById(id: String): Optional<UserEntity> = userDAO.findById(id)
 
-    override fun insert(obj: User): User = userDAO.insert(obj)
+    override fun insert(obj: UserEntity): UserEntity = userDAO.insert(obj)
 
-    override fun deleteById(id: String): Optional<User> {
+    override fun deleteById(id: String): Optional<UserEntity> {
         return userDAO.findById(id).apply {
             this.ifPresent {
                 userDAO.delete(it)
@@ -24,7 +24,7 @@ class UserService(val userDAO: UserDAO): BasicCrud<String, User> {
         }
     }
 
-    override fun update(obj: User): User {
+    override fun update(obj: UserEntity): UserEntity {
         TODO("Not yet implemented")
     }
 }
