@@ -10,6 +10,8 @@ import java.util.*
 @Service
 class UserService(val userDAO: UserDAO) : BasicCrud<Int, UserModel> {
 
+        override fun getAll(): List<UserModel> = userDAO.findAll()
+
         override fun getAll(pageable: Pageable): Page<UserModel> = userDAO.findAll(pageable)
 
         override fun getById(id: Int): Optional<UserModel> = userDAO.findById(id)
