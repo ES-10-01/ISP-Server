@@ -1,12 +1,13 @@
 package com.isp.server.util
 
+import com.isp.server.models.Credentials
 import com.isp.server.models.UserModel
 import com.isp.server.services.UserService
 import java.util.*
 
-fun validateCredentials(userModel: UserModel, userService: UserService): Boolean {
-        val storedUserModel: Optional<UserModel> = userService.getById(userModel.uid)
-        if (storedUserModel.isEmpty)
+fun validateCredentials(credentials: Credentials, userService: UserService, admin: Boolean = false): Boolean {
+        val storedUserModel: Optional<UserModel> = userService.getById(credentials.user_uid)
+        if (storedUserModel.isEmpty || (admin && storedUserModel.get().privileges != "ADMIN"))
                 return false
-        return hashUserPassword(userModel) == storedUserModel.get()
+        return hash(credentials.password) == storedUserModel.get().password
 }

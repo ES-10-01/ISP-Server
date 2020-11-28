@@ -10,15 +10,14 @@ fun hash(strToBeHashed : String): String {
     return digest.fold("", { str, it -> str + "%02x".format(it) })
 }
 
-fun newPass() : String {
+fun generatePassword() : String {
+    val passwordLength = 10
     val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-    val PASS_LENGTH = 10
 
-    val randomString = (1..PASS_LENGTH)
-        .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
+    val randomString = (1..passwordLength)
+        .map { _ -> kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("");
-
 
     return randomString
 }
