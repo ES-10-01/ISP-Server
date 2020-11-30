@@ -5,8 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "lock")
 data class LockModel (
-        @Id
-        val uid: Int,
-        val name: String,
-        val ip: String
+    @Id
+    val uid: Int,
+    val name: String,
+    val ip: String
 )

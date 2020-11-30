@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Service
 
-
 @Service
 class NextIdService {
     @Autowired
@@ -20,7 +19,8 @@ class NextIdService {
             Query.query(Criteria.where("_id").`is`(seqName)),
             Update().inc("seq", 1),
             FindAndModifyOptions.options().returnNew(true).upsert(true),
-            IdSeqModel::class.java)!!
+            IdSeqModel::class.java
+        )!!
 
         return counter.seq
     }

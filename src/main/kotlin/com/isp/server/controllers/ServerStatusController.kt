@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api/ping")
 class ServerStatusController {
 
-        @GetMapping
-        fun test(): String {
-                return "Server is up!"
-        }
+    @GetMapping
+    fun test(): String {
+        return "Server is up!"
+    }
 }

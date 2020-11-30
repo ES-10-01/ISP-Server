@@ -12,23 +12,23 @@ import java.util.*
 @Service
 class UserService(val userDAO: UserDAO) : BasicCrud<Int, UserModel> {
 
-        override fun getAll(): List<UserModel> = userDAO.findAll()
+    override fun getAll(): List<UserModel> = userDAO.findAll()
 
-        override fun getAll(pageable: Pageable): Page<UserModel> = userDAO.findAll(pageable)
+    override fun getAll(pageable: Pageable): Page<UserModel> = userDAO.findAll(pageable)
 
-        override fun getById(id: Int): Optional<UserModel> = userDAO.findById(id)
+    override fun getById(id: Int): Optional<UserModel> = userDAO.findById(id)
 
-        override fun insert(obj: UserModel): UserModel = userDAO.insert(obj)
+    override fun insert(obj: UserModel): UserModel = userDAO.insert(obj)
 
-        override fun deleteById(id: Int): Optional<UserModel> {
-                return userDAO.findById(id).apply {
-                        this.ifPresent {
-                                userDAO.delete(it)
-                        }
-                }
+    override fun deleteById(id: Int): Optional<UserModel> {
+        return userDAO.findById(id).apply {
+            this.ifPresent {
+                userDAO.delete(it)
+            }
         }
+    }
 
-        override fun update(obj: UserModel): UserModel {
-                return userDAO.save(obj)
-        }
+    override fun update(obj: UserModel): UserModel {
+        return userDAO.save(obj)
+    }
 }
