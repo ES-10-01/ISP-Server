@@ -81,6 +81,29 @@ class AdminController (private val userService: UserService, private val lockSer
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = updatedUser)
     }
 
+    @PostMapping("/user/lock/add")
+    fun update(@RequestBody requestBody: AddLockToUserRequest): Response<Nothing> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val userToUpdate: Optional<UserModel> = userService.getById(requestBody.target_user_uid)
+        if (userToUpdate.isEmpty)
+            return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
+
+        if (userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+            return Response(status = "DENIED", message = ResponseMessages.LOCK_ALREADY_ADDED.text)
+
+        val lockToAdd: Optional<LockModel> = lockService.getById(requestBody.lock_uid)
+        if (lockToAdd.isEmpty)
+            return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
+
+        val updatedUser: UserModel = userToUpdate.get()
+        updatedUser.availableLocks += requestBody.lock_uid
+        userService.update(updatedUser)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+    }
+
     @PostMapping("/lock/rename")
     fun update(@RequestBody requestBody: RenameLockRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
@@ -136,6 +159,12 @@ class AdminController (private val userService: UserService, private val lockSer
             val target_user_uid: Int,
             val reset_password: Boolean,
             val new_privileges: String? = null
+    )
+
+    data class AddLockToUserRequest(
+        val credentials: Credentials,
+        val lock_uid: Int,
+        val target_user_uid: Int
     )
 
     data class RenameLockRequest(
