@@ -15,11 +15,14 @@ import java.util.*
 class UserController(private val userService: UserService) {
 
     @PostMapping("/login")
-    fun login(@RequestBody requestBody: LoginRequest): Response<Nothing> {
+    fun login(@RequestBody requestBody: LoginRequest): Response<LoginResponse> {
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
-        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+        val user: Optional<UserModel> = userService.getById(requestBody.credentials.user_uid)
+        val res = LoginResponse(privileges = user.get().privileges)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = res)
     }
 
     @PostMapping("/update")
@@ -38,6 +41,10 @@ class UserController(private val userService: UserService) {
 
     data class LoginRequest(
         val credentials: Credentials
+    )
+
+    data class LoginResponse(
+        val privileges: String
     )
 
     data class UpdateRequest(

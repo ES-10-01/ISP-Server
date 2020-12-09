@@ -28,6 +28,7 @@ fun hashUserPassword(userModel: UserModel): UserModel {
         hash(userModel.password),
         userModel.name,
         userModel.surname,
-        userModel.privileges
+        userModel.privileges,
+        userModel.availableLocks
     )
 }
