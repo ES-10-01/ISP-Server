@@ -104,6 +104,27 @@ class AdminController (private val userService: UserService, private val lockSer
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
     }
 
+    @PostMapping("/user/lock/delete")
+    fun delete(@RequestBody requestBody: DeleteLockFromUserRequest): Response<Nothing> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val userToUpdate: Optional<UserModel> = userService.getById(requestBody.target_user_uid)
+        if (userToUpdate.isEmpty)
+            return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
+
+        if (!userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+            return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
+
+        val updatedUser: UserModel = userToUpdate.get()
+        val availableLocks = updatedUser.availableLocks.toMutableList()
+        availableLocks.remove(requestBody.lock_uid)
+        updatedUser.availableLocks = availableLocks.toList()
+        userService.update(updatedUser)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+    }
+
     @PostMapping("/lock/rename")
     fun update(@RequestBody requestBody: RenameLockRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
@@ -162,6 +183,12 @@ class AdminController (private val userService: UserService, private val lockSer
     )
 
     data class AddLockToUserRequest(
+        val credentials: Credentials,
+        val lock_uid: Int,
+        val target_user_uid: Int
+    )
+
+    data class DeleteLockFromUserRequest(
         val credentials: Credentials,
         val lock_uid: Int,
         val target_user_uid: Int
