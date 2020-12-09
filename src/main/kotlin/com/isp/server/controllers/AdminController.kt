@@ -1,9 +1,7 @@
 package com.isp.server.controllers
 
-import com.isp.server.models.Credentials
-import com.isp.server.models.Response
-import com.isp.server.models.ResponseMessages
-import com.isp.server.models.UserModel
+import com.isp.server.models.*
+import com.isp.server.services.LockService
 import com.isp.server.services.NextIdService
 import com.isp.server.services.UserService
 import com.isp.server.util.generatePassword
@@ -14,7 +12,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("api/admin")
-class AdminController (private val userService: UserService, private val nextIdService : NextIdService) {
+class AdminController (private val userService: UserService, private val lockService: LockService, private val nextIdService : NextIdService) {
     val allowedPrivileges = arrayOf("USER", "ADMIN")
 
     @PostMapping("user/all")
@@ -83,6 +81,34 @@ class AdminController (private val userService: UserService, private val nextIdS
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = updatedUser)
     }
 
+    @PostMapping("/lock/rename")
+    fun update(@RequestBody requestBody: RenameLockRequest): Response<Nothing> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val lockToUpdate: Optional<LockModel> = lockService.getById(requestBody.lock_uid)
+        if (lockToUpdate.isEmpty)
+            return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
+
+        val updatedLock: LockModel = lockToUpdate.get()
+        updatedLock.name = requestBody.lock_new_name
+        lockService.update(updatedLock)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+    }
+
+    @PostMapping("/lock/delete")
+    fun update(@RequestBody requestBody: DeleteLockRequest): Response<Nothing> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val deletedLock: Optional<LockModel> = lockService.deleteById(requestBody.lock_uid)
+        if (deletedLock.isEmpty)
+            return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+    }
+
     fun validatePrivileges(privileges: String): Boolean{
         return privileges.toUpperCase() in allowedPrivileges
     }
@@ -110,6 +136,17 @@ class AdminController (private val userService: UserService, private val nextIdS
             val target_user_uid: Int,
             val reset_password: Boolean,
             val new_privileges: String? = null
+    )
+
+    data class RenameLockRequest(
+        val credentials: Credentials,
+        val lock_uid: Int,
+        val lock_new_name: String
+    )
+
+    data class DeleteLockRequest(
+        val credentials: Credentials,
+        val lock_uid: Int
     )
 
 }
