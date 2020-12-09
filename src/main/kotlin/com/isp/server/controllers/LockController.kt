@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 class LockController(private val userService: UserService, private val lockService: LockService) {
 
     @PostMapping("/all")
-    fun getAll(@RequestBody requestBody: GetAllRequest): Response<List<LockAllResponse>> {
+    fun getAll(@RequestBody requestBody: GetAllRequest): Response<List<GetAllResponse>> {
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -51,7 +51,7 @@ class LockController(private val userService: UserService, private val lockServi
         val credentials: Credentials
     )
 
-    data class LockAllResponse(
+    data class GetAllResponse(
         val lock_uid: Int,
         val lock_name: String
     )
@@ -61,13 +61,25 @@ class LockController(private val userService: UserService, private val lockServi
         val lock_uid: Int
     )
 
+    data class OpenResponse(
+        val todo: Nothing
+    )
+
     data class StatusRequest(
         val credentials: Credentials,
         val lock_uid: Int
     )
 
+    data class StatusResponse(
+        val todo: Nothing
+    )
+
     data class CancelRequest(
         val credentials: Credentials,
         val lock_uid: Int
+    )
+
+    data class CancelResponse(
+        val todo: Nothing
     )
 }

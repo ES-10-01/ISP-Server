@@ -10,3 +10,9 @@ data class LockModel (
     val name: String,
     val ip: String
 )
+
+enum class LockStatuses {
+    CLOSED,
+    OPENED,
+    OPENED_VIA_EMERGENCY
+}
