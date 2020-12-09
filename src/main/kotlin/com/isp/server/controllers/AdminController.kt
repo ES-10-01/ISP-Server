@@ -31,11 +31,13 @@ class AdminController (private val userService: UserService, private val nextIdS
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
         val newUser = UserModel(
-                nextIdService.getNextSequence("idSequences"),
-                generatePassword(),
-                requestBody.name,
-                requestBody.surname,
-                requestBody.privileges.toUpperCase()
+            nextIdService.getNextSequence("idSequences"),
+            generatePassword(),
+            requestBody.name,
+            requestBody.surname,
+            requestBody.privileges.toUpperCase(),
+            // TODO parse from request or leave as empty by default
+            emptyList()
         )
         userService.insert(hashUserPassword(newUser))
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = newUser)
