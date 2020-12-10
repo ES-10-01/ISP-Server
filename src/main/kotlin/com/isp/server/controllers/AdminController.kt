@@ -35,7 +35,7 @@ class AdminController (private val userService: UserService, private val lockSer
             requestBody.surname,
             requestBody.privileges.toUpperCase(),
             // TODO parse from request or leave as empty by default
-            emptyList()
+            mutableListOf()
         )
         userService.insert(hashUserPassword(newUser))
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = newUser)
@@ -98,7 +98,7 @@ class AdminController (private val userService: UserService, private val lockSer
             return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        updatedUser.availableLocks += requestBody.lock_uid
+        updatedUser.availableLocks.add(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
@@ -117,9 +117,7 @@ class AdminController (private val userService: UserService, private val lockSer
             return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        val availableLocks = updatedUser.availableLocks.toMutableList()
-        availableLocks.remove(requestBody.lock_uid)
-        updatedUser.availableLocks = availableLocks.toList()
+        updatedUser.availableLocks.remove(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)

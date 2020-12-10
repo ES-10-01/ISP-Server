@@ -3,6 +3,7 @@ package com.isp.server.controllers
 import com.isp.server.models.Credentials
 import com.isp.server.models.Response
 import com.isp.server.models.ResponseMessages
+import com.isp.server.models.UserModel
 import com.isp.server.services.LockService
 import com.isp.server.services.UserService
 import com.isp.server.util.validateCredentials
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 @RequestMapping("api/lock")
@@ -19,6 +21,9 @@ class LockController(private val userService: UserService, private val lockServi
     fun getAll(@RequestBody requestBody: GetAllRequest): Response<List<GetAllResponse>> {
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val targetUser: Optional<UserModel> = userService.getById(requestBody.credentials.user_uid)
+        val availableLocks: MutableList<Int> = targetUser.get().availableLocks
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = null)
     }
