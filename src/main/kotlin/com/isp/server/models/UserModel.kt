@@ -10,6 +10,6 @@ data class UserModel (
     val password: String,
     val name: String,
     val surname: String,
-    val privileges: String
-    //val availableLocks: Array<Lock>
+    val privileges: String,
+    var availableLocks: MutableList<Int>
 )

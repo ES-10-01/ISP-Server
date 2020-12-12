@@ -24,7 +24,7 @@ class HashTest {
 
         @Test
         fun hashUserPasswordTest() {
-                val firstModel: UserModel = UserModel(1, "asd", "asd", "asd", "admin")
+                val firstModel: UserModel = UserModel(1, "asd", "asd", "asd", "admin", mutableListOf())
                 val secondModel: UserModel = hashUserPassword(firstModel)
                 Assertions.assertEquals(hash(firstModel.password), secondModel.password)
         }

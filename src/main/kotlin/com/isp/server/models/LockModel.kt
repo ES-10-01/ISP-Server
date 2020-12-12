@@ -7,6 +7,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class LockModel (
     @Id
     val uid: Int,
-    val name: String,
+    var name: String,
     val ip: String
 )
+
+enum class LockStatuses {
+    CLOSED,
+    OPENED,
+    OPENED_VIA_EMERGENCY
+}
