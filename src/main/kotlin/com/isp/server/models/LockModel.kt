@@ -8,6 +8,7 @@ data class LockModel (
     @Id
     val uid: Int,
     var name: String,
+    var TCPConnId: String,
     val ip: String
 )
 

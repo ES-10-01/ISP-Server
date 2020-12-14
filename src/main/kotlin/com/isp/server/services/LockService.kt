@@ -26,7 +26,5 @@ class LockService(val lockDAO: LockDAO) : BasicCrud<Int, LockModel> {
         }
     }
 
-    override fun update(obj: LockModel): LockModel {
-        return lockDAO.save(obj)
-    }
+    override fun update(obj: LockModel): LockModel = lockDAO.save(obj)
 }
