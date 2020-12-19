@@ -23,7 +23,7 @@ class LockController(private val userService: UserService, private val lockServi
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
         val targetUser: Optional<UserModel> = userService.getById(requestBody.credentials.user_uid)
-        val userLocks: MutableList<Int> = targetUser.get().availableLocks
+        val userLocks: MutableList<Int> = targetUser.get().lock_uids
 
         val availableLocks = lockService.getAll().filter{ it.uid in userLocks.toIntArray() }
         val res: List<GetAllResponse> = availableLocks.map {

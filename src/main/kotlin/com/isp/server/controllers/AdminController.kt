@@ -90,7 +90,7 @@ class AdminController (private val userService: UserService, private val lockSer
         if (userToUpdate.isEmpty)
             return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
 
-        if (userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+        if (userToUpdate.get().lock_uids.contains(requestBody.lock_uid))
             return Response(status = "DENIED", message = ResponseMessages.LOCK_ALREADY_ADDED.text)
 
         val lockToAdd: Optional<LockModel> = lockService.getById(requestBody.lock_uid)
@@ -98,7 +98,7 @@ class AdminController (private val userService: UserService, private val lockSer
             return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        updatedUser.availableLocks.add(requestBody.lock_uid)
+        updatedUser.lock_uids.add(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
@@ -113,11 +113,11 @@ class AdminController (private val userService: UserService, private val lockSer
         if (userToUpdate.isEmpty)
             return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
 
-        if (!userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+        if (!userToUpdate.get().lock_uids.contains(requestBody.lock_uid))
             return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        updatedUser.availableLocks.remove(requestBody.lock_uid)
+        updatedUser.lock_uids.remove(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
@@ -137,7 +137,7 @@ class AdminController (private val userService: UserService, private val lockSer
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
         val targetUser: Optional<UserModel> = userService.getById(requestBody.target_user_uid)
-        val lockUids: MutableList<Int> = targetUser.get().availableLocks
+        val lockUids: MutableList<Int> = targetUser.get().lock_uids
 
         val locks: MutableList<LockModel> = mutableListOf()
         for (lockUid: Int in lockUids) {

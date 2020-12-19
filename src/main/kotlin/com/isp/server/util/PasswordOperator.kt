@@ -29,6 +29,6 @@ fun hashUserPassword(userModel: UserModel): UserModel {
         userModel.name,
         userModel.surname,
         userModel.privileges,
-        userModel.availableLocks
+        userModel.lock_uids
     )
 }
