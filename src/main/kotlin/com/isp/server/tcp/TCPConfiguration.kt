@@ -16,7 +16,7 @@ import org.springframework.messaging.MessageChannel
 
 
 @Configuration
-class TCPConfiguration(private val lockManager: LockManager, private val lockService: LockService) {
+class TCPConfiguration(private val lockManager: LockManager) {
     @Bean
     fun cf(): TcpNetServerConnectionFactory {
         return TcpNetServerConnectionFactory(9876)
@@ -51,19 +51,9 @@ class TCPConfiguration(private val lockManager: LockManager, private val lockSer
     }
 
     // Interacting itself
-    @ServiceActivator(inputChannel = "inputChannel"/*, outputChannel = "outputChannel"*/)
-    fun receiveMessage(msg: Message<String?>) /*: Message<String>*/ {
-        val message = msg.payload.toString()
-        if (message.startsWith("GOS_HELLO")) {
-            lockManager.addOrUpdate(message.substring(message.indexOf(",") + 1).toInt(),
-                msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!,
-                message.substring(message.indexOf("=") + 1, message.indexOf(",")))
-        }
-
-        /*return MessageBuilder
-            .withPayload("LOL_SAVED")
-            .setHeader(IpHeaders.CONNECTION_ID, lockService.getById(0).get().TCPConnId)
-            .build()*/
+    @ServiceActivator(inputChannel = "inputChannel")
+    fun receiveMessage(message: Message<String>) {
+        lockManager.sortIncomingMessage(message)
     }
 
     fun sendMessage(message: String, TCPConnId : String) {
@@ -73,7 +63,8 @@ class TCPConfiguration(private val lockManager: LockManager, private val lockSer
             .build())
     }
 
-    /*// For the first connection
+    /* REDUNDANT
+    // For the first connection
     @Bean
     fun listener(outputChannel: MessageChannel): ApplicationListener<TcpConnectionOpenEvent>? {
         return ApplicationListener { event ->

@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class LockModel (
     @Id
     val uid: Int,
-    var name: String,
+    var name: String = "no_name",
     var TCPConnId: String,
-    val ip: String
+    var ip: String
 )
 
 enum class LockStatuses {
