@@ -45,7 +45,7 @@ class LockController(private val userService: UserService, private val lockServi
         val lockOptional = lockService.getById(requestBody.lock_uid)
         if (lockOptional.isEmpty) return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
 
-me        if (!user.lock_uids.contains(lockOptional.get().uid))
+        if (!user.lock_uids.contains(lockOptional.get().uid))
             return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
 
         var lockPIN : String
