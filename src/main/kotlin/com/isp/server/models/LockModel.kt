@@ -7,12 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class LockModel (
     @Id
     val uid: Int,
-    var name: String,
-    val ip: String
+    var name: String = "no_name",
+    var TCPConnId: String,
+    var ip: String
 )
 
-enum class LockStatuses {
-    CLOSED,
-    OPENED,
-    OPENED_VIA_EMERGENCY
+enum class LockStatuses(val text: String) {
+    PENDING("Waiting for PIN & verifying"),
+    OPENED("Lock has been successfully opened"),
+    BLOCKED("Invalid PIN, try again")
 }

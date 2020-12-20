@@ -1,6 +1,7 @@
 package com.isp.server.services
 
 import com.isp.server.models.LockModel
+import com.isp.server.models.UserModel
 import com.isp.server.util.BasicCrud
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,5 +29,9 @@ class LockService(val lockDAO: LockDAO) : BasicCrud<Int, LockModel> {
 
     override fun update(obj: LockModel): LockModel {
         return lockDAO.save(obj)
+    }
+
+    fun getByTCPConnId(TCPConnID : String) : Optional<LockModel> {
+        return lockDAO.findByTCPConnId(TCPConnID)
     }
 }
