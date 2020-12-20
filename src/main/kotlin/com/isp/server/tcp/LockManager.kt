@@ -93,4 +93,39 @@ class LockManager(private val lockService: LockService, @Lazy private val tcpCon
             else requestPIN(lockOptional.get().uid)
         }
     }
+
+    fun cancel(lock_uid: Int, user_uid : Int) : Boolean {
+        var openedSessions = 0
+        var hadOpenedSessions = false
+
+        val lockOptional = lockService.getById(lock_uid)
+
+        if (lockOptional.isEmpty)
+            return false
+        else {
+            requestedPINs.forEach {
+                if (it.key.first == lock_uid) {
+                    openedSessions++
+                    hadOpenedSessions = true
+                    if (it.value == user_uid) {
+                        requestedPINs.remove(it.key)
+                        openedSessions--
+                    }
+                }
+            }
+
+            if (hadOpenedSessions) {
+                if (openedSessions == 0) {
+                    locksInGetPassMode.remove(lock_uid)
+                    close(lockOptional.get().TCPConnId)
+                }
+                else {
+                    close(lockOptional.get().TCPConnId)
+                    requestPIN(lockOptional.get().uid)
+                }
+            }
+
+            return true
+        }
+    }
 }

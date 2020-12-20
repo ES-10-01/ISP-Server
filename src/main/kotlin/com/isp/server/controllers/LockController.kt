@@ -97,9 +97,9 @@ class LockController(private val userService: UserService, private val lockServi
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
-        // TODO!
-
-        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+        return if (lockManager.cancel(requestBody.lock_uid, requestBody.credentials.user_uid))
+            Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+        else Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
     }
 
     data class GetAllRequest(
