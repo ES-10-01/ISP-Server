@@ -17,15 +17,19 @@ class LockManager(private val lockService: LockService, @Lazy private val tcpCon
 
     fun sortIncomingMessage(msg: Message<String>) {
         val message = msg.payload.toString()
-        if (message.startsWith("GOS_HELLO")) {
-            addOrUpdate(message.substring(message.indexOf(",") + 1).toInt(),
-                msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!,
-                message.substring(message.indexOf("=") + 1, message.indexOf(",")))
-        } else if (message.startsWith("GOS_PASS")) {
-            verifyPIN(message.substring(message.indexOf("=") + 1),
-                msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!)
-        } else if (message.equals("GOS_LOCKED")) {
-            timedCloseFromLock(msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!)
+        when {
+            message.startsWith("GOS_HELLO") -> {
+                addOrUpdate(message.substring(message.indexOf(",") + 1).toInt(),
+                    msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!,
+                    message.substring(message.indexOf("=") + 1, message.indexOf(",")))
+            }
+            message.startsWith("GOS_PASS") -> {
+                verifyPIN(message.substring(message.indexOf("=") + 1),
+                    msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!)
+            }
+            message == "GOS_LOCKED" -> {
+                timedCloseFromLock(msg.getHeaders().get(IpHeaders.CONNECTION_ID, String::class.java)!!)
+            }
         }
     }
 

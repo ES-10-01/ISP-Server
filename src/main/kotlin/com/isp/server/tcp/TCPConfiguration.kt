@@ -1,6 +1,5 @@
 package com.isp.server.tcp
 
-import com.isp.server.services.LockService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.integration.annotation.ServiceActivator
