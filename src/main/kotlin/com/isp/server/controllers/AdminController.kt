@@ -16,7 +16,7 @@ class AdminController (private val userService: UserService, private val lockSer
     val allowedPrivileges = arrayOf("USER", "ADMIN")
 
     @PostMapping("user/all")
-    fun getAll(@RequestBody requestBody: GetAllUsersRequest): Response<List<UserModel>> {
+    fun getAllUsers(@RequestBody requestBody: GetAllUsersRequest): Response<List<UserModel>> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -24,7 +24,7 @@ class AdminController (private val userService: UserService, private val lockSer
     }
 
     @PostMapping("user/add")
-    fun create(@RequestBody requestBody: AddUserRequest): Response<UserModel> {
+    fun createUser(@RequestBody requestBody: AddUserRequest): Response<UserModel> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -42,7 +42,7 @@ class AdminController (private val userService: UserService, private val lockSer
     }
 
     @PostMapping("/user/delete")
-    fun delete(@RequestBody requestBody: DeleteUserRequest): Response<Nothing> {
+    fun deleteUser(@RequestBody requestBody: DeleteUserRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -54,7 +54,7 @@ class AdminController (private val userService: UserService, private val lockSer
     }
 
     @PostMapping("/user/update")
-    fun update(@RequestBody requestBody: UpdateUserRequest): Response<UserModel> {
+    fun updateUser(@RequestBody requestBody: UpdateUserRequest): Response<UserModel> {
         if (!requestBody.reset_password && requestBody.new_privileges == null)
             return Response(status = "DENIED", message = ResponseMessages.NOTHING_TO_UPDATE.text)
         if (requestBody.new_privileges != null && !validatePrivileges(requestBody.new_privileges))
@@ -82,7 +82,7 @@ class AdminController (private val userService: UserService, private val lockSer
     }
 
     @PostMapping("/user/lock/add")
-    fun update(@RequestBody requestBody: AddLockToUserRequest): Response<Nothing> {
+    fun addLockToUser(@RequestBody requestBody: AddLockToUserRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -90,7 +90,7 @@ class AdminController (private val userService: UserService, private val lockSer
         if (userToUpdate.isEmpty)
             return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
 
-        if (userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+        if (userToUpdate.get().lock_uids.contains(requestBody.lock_uid))
             return Response(status = "DENIED", message = ResponseMessages.LOCK_ALREADY_ADDED.text)
 
         val lockToAdd: Optional<LockModel> = lockService.getById(requestBody.lock_uid)
@@ -98,14 +98,14 @@ class AdminController (private val userService: UserService, private val lockSer
             return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        updatedUser.availableLocks.add(requestBody.lock_uid)
+        updatedUser.lock_uids.add(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
     }
 
     @PostMapping("/user/lock/delete")
-    fun delete(@RequestBody requestBody: DeleteLockFromUserRequest): Response<Nothing> {
+    fun deleteLockFromUser(@RequestBody requestBody: DeleteLockFromUserRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -113,18 +113,42 @@ class AdminController (private val userService: UserService, private val lockSer
         if (userToUpdate.isEmpty)
             return Response(status = "DENIED", message = ResponseMessages.USER_NOT_FOUND.text)
 
-        if (!userToUpdate.get().availableLocks.contains(requestBody.lock_uid))
+        if (!userToUpdate.get().lock_uids.contains(requestBody.lock_uid))
             return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
 
         val updatedUser: UserModel = userToUpdate.get()
-        updatedUser.availableLocks.remove(requestBody.lock_uid)
+        updatedUser.lock_uids.remove(requestBody.lock_uid)
         userService.update(updatedUser)
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
     }
 
+    @PostMapping("/lock/all")
+    fun getAllLocks(@RequestBody requestBody: GetAllLocksRequest): Response<List<LockModel>> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = lockService.getAll())
+    }
+
+    @PostMapping("/user/lock/all")
+    fun getAllLocksByUser(@RequestBody requestBody: GetAllLocksByUserRequest): Response<List<LockModel>> {
+        if (!validateCredentials(requestBody.credentials, userService, admin = true))
+            return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        val targetUser: Optional<UserModel> = userService.getById(requestBody.target_user_uid)
+        val lockUids: MutableList<Int> = targetUser.get().lock_uids
+
+        val locks: MutableList<LockModel> = mutableListOf()
+        for (lockUid: Int in lockUids) {
+            locks.add(lockService.getById(lockUid).get())
+        }
+
+        return Response(status = "OK", message = ResponseMessages.SUCCESS.text, data = locks)
+    }
+
     @PostMapping("/lock/rename")
-    fun update(@RequestBody requestBody: RenameLockRequest): Response<Nothing> {
+    fun renameLock(@RequestBody requestBody: RenameLockRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -140,7 +164,7 @@ class AdminController (private val userService: UserService, private val lockSer
     }
 
     @PostMapping("/lock/delete")
-    fun update(@RequestBody requestBody: DeleteLockRequest): Response<Nothing> {
+    fun deleteLock(@RequestBody requestBody: DeleteLockRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
@@ -201,6 +225,15 @@ class AdminController (private val userService: UserService, private val lockSer
     data class DeleteLockRequest(
         val credentials: Credentials,
         val lock_uid: Int
+    )
+
+    data class GetAllLocksRequest(
+        val credentials: Credentials
+    )
+
+    data class GetAllLocksByUserRequest(
+        val credentials: Credentials,
+        val target_user_uid: Int
     )
 
 }

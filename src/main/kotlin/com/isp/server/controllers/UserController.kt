@@ -29,6 +29,8 @@ class UserController(private val userService: UserService) {
     fun update(@RequestBody requestBody: UpdateRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = true))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+        if (requestBody.new_password.isBlank())
+            return Response(status = "DENIED", message = ResponseMessages.NO_PASSWORD_SPECIFIED.text)
 
         val userFromDatabase: Optional<UserModel> = userService.getById(requestBody.credentials.user_uid)
         var userToUpdate: UserModel = userFromDatabase.get()
