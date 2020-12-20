@@ -1,9 +1,6 @@
 package com.isp.server.controllers
 
-import com.isp.server.models.Credentials
-import com.isp.server.models.Response
-import com.isp.server.models.ResponseMessages
-import com.isp.server.models.UserModel
+import com.isp.server.models.*
 import com.isp.server.services.LockService
 import com.isp.server.services.UserService
 import com.isp.server.tcp.LockManager
@@ -19,10 +16,6 @@ import kotlin.random.Random
 @RestController
 @RequestMapping("api/lock")
 class LockController(private val userService: UserService, private val lockService: LockService, private val lockManager: LockManager) {
-
-    companion object {
-        var currentPINs = mutableMapOf<Pair<Int, String>, Int>()    // Map: { Pair{lock_uid, PIN}, user_uid }
-    }
 
     @PostMapping("/all")
     fun getAll(@RequestBody requestBody: GetAllRequest): Response<List<GetAllResponse>> {
@@ -46,7 +39,7 @@ class LockController(private val userService: UserService, private val lockServi
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
         val user = userService.getById(requestBody.credentials.user_uid).get()
-        if (currentPINs.containsValue(user.uid))
+        if (lockManager.requestedPINs.containsValue(user.uid))
             return Response(status = "DENIED", message = ResponseMessages.PREVIOUS_SESSION_HAS_NOT_BEEN_CANCELED.text)
 
         val lockOptional = lockService.getById(requestBody.lock_uid)
@@ -58,17 +51,21 @@ class LockController(private val userService: UserService, private val lockServi
         var lockPIN : String
         do {
             lockPIN = Random.nextInt(1000, 9999).toString()
-        } while (lockOptional.get().uid to lockPIN in currentPINs)
+        } while (lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.PENDING))
+            || lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.OPENED))
+            || lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.BLOCKED)))
 
-        currentPINs[lockOptional.get().uid to lockPIN] = user.uid
-
-        try {
-            lockManager.requestPassword(lockOptional.get().uid)
-        } catch (exception: MessageHandlingException) {
-            return Response(status = "DENIED", message = ResponseMessages.LOCK_UNREACHABLE.text)
+        if (!lockManager.locksInGetPassMode.contains(lockOptional.get().uid)) {
+            try {
+                lockManager.requestPIN(lockOptional.get().uid)
+            } catch (exception: MessageHandlingException) {
+                return Response(status = "DENIED", message = ResponseMessages.LOCK_UNREACHABLE.text)
+            }
         }
 
-        println(currentPINs.toString()) // TODO: remove after checking w/ several active users
+        lockManager.requestedPINs[Triple(lockOptional.get().uid, lockPIN, LockStatuses.PENDING)] = user.uid
+
+        println(lockManager.requestedPINs.toString()) // TODO: remove after checking w/ several active users (checking companion object)
 
         return Response(status = "OK", message = ResponseMessages.SENDING_PIN.text, data = OpenResponse(lockOptional.get().uid, lockPIN))
     }
@@ -78,13 +75,31 @@ class LockController(private val userService: UserService, private val lockServi
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
 
-        return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
+        val lockOptional = lockService.getById(requestBody.lock_uid)
+        if (lockOptional.isEmpty) return Response(status = "DENIED", message = ResponseMessages.LOCK_NOT_FOUND.text)
+
+        val user = userService.getById(requestBody.credentials.user_uid).get()
+        if (!user.availableLocks.contains(lockOptional.get().uid))
+            return Response(status = "DENIED", message = ResponseMessages.NO_LOCK_FOR_GIVEN_USER.text)
+
+        lockManager.requestedPINs.forEach {
+            if (it.value == user.uid) {
+                if (it.key.third == LockStatuses.PENDING || it.key.third == LockStatuses.OPENED)
+                    return Response(status = "OK", message = it.key.third.text)
+                else if (it.key.third == LockStatuses.BLOCKED)
+                    return Response(status = "DENIED", message = it.key.third.text)
+            }
+        }
+
+        return Response(status = "DENIED", message = ResponseMessages.NO_PIN_REQUESTED.text)
     }
 
     @PostMapping("/cancel")
     fun cancel(@RequestBody requestBody: CancelRequest): Response<Nothing> {
         if (!validateCredentials(requestBody.credentials, userService, admin = false))
             return Response(status = "DENIED", message = ResponseMessages.CREDENTIALS_VALIDATION_ERROR.text)
+
+        // TODO!
 
         return Response(status = "OK", message = ResponseMessages.SUCCESS.text)
     }

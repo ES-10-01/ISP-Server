@@ -12,8 +12,8 @@ data class LockModel (
     var ip: String
 )
 
-enum class LockStatuses {
-    CLOSED,
-    OPENED,
-    OPENED_VIA_EMERGENCY
+enum class LockStatuses(val text: String) {
+    PENDING("Waiting for PIN & verifying"),
+    OPENED("Lock has been successfully opened"),
+    BLOCKED("Invalid PIN, try again")
 }

@@ -30,4 +30,8 @@ class LockService(val lockDAO: LockDAO) : BasicCrud<Int, LockModel> {
     override fun update(obj: LockModel): LockModel {
         return lockDAO.save(obj)
     }
+
+    fun getByTCPConnId(TCPConnID : String) : Optional<LockModel> {
+        return lockDAO.findByTCPConnId(TCPConnID)
+    }
 }

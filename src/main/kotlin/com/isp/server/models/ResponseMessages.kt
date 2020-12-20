@@ -11,5 +11,6 @@ enum class ResponseMessages(val text: String) {
     LOCK_ALREADY_ADDED("Error: specified lock is already added"),
     NO_LOCK_FOR_GIVEN_USER("Error: user has no access to specified lock"),
     PREVIOUS_SESSION_HAS_NOT_BEEN_CANCELED("Error: user is trying to open several locks at the same time"),
-    SENDING_PIN("OK: Sending PIN code for the lock")
+    SENDING_PIN("OK: Sending PIN code for the lock"),
+    NO_PIN_REQUESTED("Error: No PIN has been requested for this lock")
 }
