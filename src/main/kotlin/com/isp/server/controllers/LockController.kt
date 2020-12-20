@@ -50,10 +50,10 @@ class LockController(private val userService: UserService, private val lockServi
 
         var lockPIN : String
         do {
-            lockPIN = Random.nextInt(1000, 9999).toString()
+            lockPIN = Random.nextInt(1, 5).toString() + Random.nextInt(1, 5).toString() +
+                Random.nextInt(1, 5).toString() + Random.nextInt(1, 5).toString()
         } while (lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.PENDING))
-            || lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.OPENED))
-            || lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.BLOCKED)))
+            || lockManager.requestedPINs.containsKey(Triple(lockOptional.get().uid, lockPIN, LockStatuses.OPENED)))
 
         if (!lockManager.locksInGetPassMode.contains(lockOptional.get().uid)) {
             try {
@@ -64,8 +64,6 @@ class LockController(private val userService: UserService, private val lockServi
         }
 
         lockManager.requestedPINs[Triple(lockOptional.get().uid, lockPIN, LockStatuses.PENDING)] = user.uid
-
-        println(lockManager.requestedPINs.toString()) // TODO: remove after checking w/ several active users (checking companion object)
 
         return Response(status = "OK", message = ResponseMessages.SENDING_PIN.text, data = OpenResponse(lockOptional.get().uid, lockPIN))
     }
@@ -84,10 +82,10 @@ class LockController(private val userService: UserService, private val lockServi
 
         lockManager.requestedPINs.forEach {
             if (it.value == user.uid) {
-                if (it.key.third == LockStatuses.PENDING || it.key.third == LockStatuses.OPENED)
-                    return Response(status = "OK", message = it.key.third.text)
-                else if (it.key.third == LockStatuses.BLOCKED)
-                    return Response(status = "DENIED", message = it.key.third.text)
+                if (it.key.third == LockStatuses.OPENED)
+                    return Response(status = "OPENED", message = it.key.third.text)
+                if (it.key.third == LockStatuses.PENDING)
+                    return Response(status = "PENDING", message = it.key.third.text)
             }
         }
 

@@ -14,6 +14,5 @@ data class LockModel (
 
 enum class LockStatuses(val text: String) {
     PENDING("Waiting for PIN & verifying"),
-    OPENED("Lock has been successfully opened"),
-    BLOCKED("Invalid PIN, try again")
+    OPENED("Lock has been successfully opened")
 }
